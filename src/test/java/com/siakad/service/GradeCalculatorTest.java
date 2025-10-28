@@ -1,6 +1,7 @@
 package com.siakad.service;
 
 import com.siakad.model.CourseGrade;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -8,35 +9,33 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 class GradeCalculatorTest {
-
-    private final GradeCalculator calc = new GradeCalculator();
-
+    // Mengetes perhitungan IPK
     @Test
-    void calculateGPA_returnsZero_onEmptyOrNull() {
-        assertEquals(0.0, calc.calculateGPA(null));
-        assertEquals(0.0, calc.calculateGPA(List.of()));
-    }
+    @DisplayName("calculateGPA: hitung IPK benar + empty case + input invalid")
+    void calculateGPA_cases() {
+        GradeCalculator calc = new GradeCalculator();
 
-    @Test
-    void calculateGPA_weightedAverage_rounded2Decimals() {
-        // (3 sks * 4.0) + (2 sks * 3.0) + (1 sks * 3.7) = 12 + 6 + 3.7 = 21.7
-        // total sks = 6 ⇒ 21.7/6 = 3.6166.. ⇒ 3.62
-        List<CourseGrade> grades = List.of(
+        // (4×3 + 3×2 + 2×1) / (3+2+1) = (12+6+2)/6 = 20/6 = 3.333... ≈ 3.33
+        var grades = List.of(
                 new CourseGrade("IF101", 3, 4.0),
                 new CourseGrade("IF102", 2, 3.0),
-                new CourseGrade("IF103", 1, 3.7)
+                new CourseGrade("IF103", 1, 2.0)
         );
-        assertEquals(3.62, calc.calculateGPA(grades));
-    }
+        assertEquals(3.33, calc.calculateGPA(grades), 1e-9);
 
-    @Test
-    void calculateGPA_throws_onInvalidGradePoint() {
-        List<CourseGrade> grades = List.of(new CourseGrade("IF999", 3, 4.5));
-        assertThrows(IllegalArgumentException.class, () -> calc.calculateGPA(grades));
-    }
+        // daftar kosong → 0.0
+        assertEquals(0.0, calc.calculateGPA(List.of()), 1e-9);
 
+        // gradePoint di luar rentang (mis. 5.0) → IllegalArgumentException
+        var invalid = List.of(new CourseGrade("XX", 2, 5.0));
+        assertThrows(IllegalArgumentException.class, () -> calc.calculateGPA(invalid));
+    }
+    // Mengetes status akademik berdasarkan semester & IPK
     @Test
-    void determineAcademicStatus_validRanges() {
+    @DisplayName("determineAcademicStatus: aturan semester 1-2 / 3-4 / 5+ & input invalid")
+    void determineAcademicStatus_rules() {
+        GradeCalculator calc = new GradeCalculator();
+
         // Semester 1-2
         assertEquals("ACTIVE", calc.determineAcademicStatus(2.0, 1));
         assertEquals("PROBATION", calc.determineAcademicStatus(1.99, 2));
@@ -44,40 +43,57 @@ class GradeCalculatorTest {
         // Semester 3-4
         assertEquals("ACTIVE", calc.determineAcademicStatus(2.25, 3));
         assertEquals("PROBATION", calc.determineAcademicStatus(2.10, 4));
-        assertEquals("SUSPENDED", calc.determineAcademicStatus(1.99, 3));
+        assertEquals("SUSPENDED", calc.determineAcademicStatus(1.90, 3));
 
         // Semester 5+
-        assertEquals("ACTIVE", calc.determineAcademicStatus(2.5, 5));
-        assertEquals("PROBATION", calc.determineAcademicStatus(2.25, 6));
-        assertEquals("SUSPENDED", calc.determineAcademicStatus(1.99, 7));
-    }
+        assertEquals("ACTIVE", calc.determineAcademicStatus(2.5, 6));
+        assertEquals("PROBATION", calc.determineAcademicStatus(2.2, 7));
+        assertEquals("SUSPENDED", calc.determineAcademicStatus(1.5, 5));
 
-    @Test
-    void determineAcademicStatus_throws_onInvalidInputs() {
+        // input invalid
         assertThrows(IllegalArgumentException.class, () -> calc.determineAcademicStatus(-0.1, 1));
         assertThrows(IllegalArgumentException.class, () -> calc.determineAcademicStatus(4.1, 1));
         assertThrows(IllegalArgumentException.class, () -> calc.determineAcademicStatus(3.0, 0));
     }
-
+    // Mengetes aturan batas maksimum SKS per IPK
     @Test
-    void calculateMaxCredits_mappingAndValidation() {
-        assertEquals(24, calc.calculateMaxCredits(3.0));
-        assertEquals(21, calc.calculateMaxCredits(2.5));
-        assertEquals(18, calc.calculateMaxCredits(2.0));
-        assertEquals(15, calc.calculateMaxCredits(1.99));
+    @DisplayName("calculateMaxCredits: mapping batas SKS dari IPK & input invalid")
+    void calculateMaxCredits_rules() {
+        GradeCalculator calc = new GradeCalculator();
+
+        assertEquals(24, calc.calculateMaxCredits(3.0)); // IPK ≥ 3.0
+        assertEquals(21, calc.calculateMaxCredits(2.5)); // 2.5–2.99
+        assertEquals(18, calc.calculateMaxCredits(2.1)); // 2.0–2.49
+        assertEquals(15, calc.calculateMaxCredits(1.99)); // < 2.0
 
         assertThrows(IllegalArgumentException.class, () -> calc.calculateMaxCredits(-0.1));
         assertThrows(IllegalArgumentException.class, () -> calc.calculateMaxCredits(4.1));
     }
-
+    // Memastikan method tidak error ketika parameter grades = null.
     @Test
-    void calculateGPA_returnsZero_whenAllCoursesHaveZeroCredits() {
-        // Semua credits = 0 → totalCredits = 0 → harus return 0.0
-        List<CourseGrade> grades = List.of(
-                new CourseGrade("IF001", 0, 4.0),
-                new CourseGrade("IF002", 0, 3.5)
-        );
-        double result = calc.calculateGPA(grades);
-        assertEquals(0.0, result);
+    @DisplayName("calculateGPA: daftar NULL → 0.0")
+    void calculateGPA_nullList_returnsZero() {
+        GradeCalculator calc = new GradeCalculator();
+        assertEquals(0.0, calc.calculateGPA(null), 1e-9);
     }
+    // Memastikan input nilai (gradePoint) negatif ditolak oleh sistem
+    @Test
+    @DisplayName("calculateGPA: gradePoint negatif → IllegalArgumentException")
+    void calculateGPA_negativeGradePoint_throws() {
+        GradeCalculator calc = new GradeCalculator();
+        var invalidNeg = List.of(new CourseGrade("NEG", 3, -0.1));
+        assertThrows(IllegalArgumentException.class, () -> calc.calculateGPA(invalidNeg));
+    }
+    // Menguji kasus di mana total SKS = 0, jadi hasil IPK seharusnya 0.0.
+    @Test
+    @DisplayName("calculateGPA: semua credits = 0 → total SKS 0 → 0.0")
+    void calculateGPA_allZeroCredits_returnsZero() {
+        GradeCalculator calc = new GradeCalculator();
+        var grades = List.of(
+                new CourseGrade("Z1", 0, 4.0),
+                new CourseGrade("Z2", 0, 3.0)
+        );
+        assertEquals(0.0, calc.calculateGPA(grades), 1e-9);
+    }
+
 }

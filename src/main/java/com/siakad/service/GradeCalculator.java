@@ -43,8 +43,7 @@ public class GradeCalculator {
     }
 
     /**
-     * Menentukan status akademik mahasiswa berdasarkan IPK dan semester
-     *
+     * Menentukan status akademik mahasiswa berdasarkan IPK dan semester*
      * Aturan:
      * - Semester 1-2: IPK >= 2.0 → ACTIVE, IPK < 2.0 → PROBATION
      * - Semester 3-4: IPK >= 2.25 → ACTIVE, IPK 2.0-2.24 → PROBATION, IPK < 2.0 → SUSPENDED
@@ -84,8 +83,7 @@ public class GradeCalculator {
 
     /**
      * Menghitung jumlah SKS maksimal yang boleh diambil mahasiswa
-     * berdasarkan IPK
-     *
+     * berdasarkan IPK*
      * Aturan:
      * - IPK >= 3.0: maksimal 24 SKS
      * - IPK 2.5-2.99: maksimal 21 SKS
