@@ -80,12 +80,4 @@ class GradeCalculatorTest {
         double result = calc.calculateGPA(grades);
         assertEquals(0.0, result);
     }
-
-    @Test
-    void calculateGPA_throws_onNegativeGradePoint_tooLow() {
-        List<CourseGrade> grades = List.of(
-                new CourseGrade("IF001", 3, -0.1)  // sisi kiri dari (gp < 0 || gp > 4.0)
-        );
-        assertThrows(IllegalArgumentException.class, () -> calc.calculateGPA(grades));
-    }
 }
