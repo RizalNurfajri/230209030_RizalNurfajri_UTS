@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class ModelTest {
 
     // ===================== Student =====================
+    // Memastikan semua setter dan getter pada kelas Student berfungsi dengan benar
     @Test
     @DisplayName("Student: ctor kosong + setter/getter semua field")
     void student_settersAndGetters_work() {
@@ -44,7 +45,7 @@ class ModelTest {
                 () -> assertEquals("ACTIVE", s.getAcademicStatus())
         );
     }
-
+    // Memastikan constructor penuh dengan semua parameter mengisi semua field Student dengan benar.
     @Test
     @DisplayName("Student: ctor penuh mengisi semua field dengan benar")
     void student_fullConstructor_populatesFields() {
@@ -64,6 +65,7 @@ class ModelTest {
     }
 
     // ===================== Enrollment =====================
+    // Menguji semua setter dan getter kelas Enrollment
     @Test
     @DisplayName("Enrollment: ctor kosong + setter/getter semua field")
     void enrollment_settersAndGetters_work() {
@@ -84,7 +86,7 @@ class ModelTest {
                 () -> assertEquals("APPROVED", e.getStatus())
         );
     }
-
+    // Memastikan constructor Enrollment yang lengkap bekerja dengan benar.
     @Test
     @DisplayName("Enrollment: ctor penuh mengisi field dengan benar")
     void enrollment_fullConstructor_populatesFields() {
@@ -101,6 +103,7 @@ class ModelTest {
     }
 
     // ===================== CourseGrade =====================
+    // Memastikan setter/getter untuk courseCode, credits, dan gradePoint bekerja.
     @Test
     @DisplayName("CourseGrade: ctor kosong + setter/getter semua field")
     void courseGrade_settersAndGetters_work() {
@@ -115,7 +118,7 @@ class ModelTest {
                 () -> assertEquals(4.0, g.getGradePoint(), 1e-9)
         );
     }
-
+    // Memverifikasi constructor CourseGrade langsung mengisi nilai yang sesuai tanpa setter.
     @Test
     @DisplayName("CourseGrade: ctor penuh mengisi field dengan benar")
     void courseGrade_fullConstructor_populatesFields() {
@@ -129,6 +132,7 @@ class ModelTest {
     }
 
     // ===================== Course =====================
+    // memastikan constructor penuh Course menginisialisasi semua atribut dengan benar
     @Test
     @DisplayName("Course: ctor penuh mengisi semua field dengan benar")
     void course_fullConstructor_populatesFields() {
@@ -143,7 +147,7 @@ class ModelTest {
                 () -> assertNotNull(c.getPrerequisites()) // ctor penuh juga inisialisasi list
         );
     }
-
+    // uji lengkap semua setter/getter di Course
     @Test
     @DisplayName("Course: semua getter/setter bekerja (credits, lecturer, dsb.)")
     void course_allSettersAndGetters_work() {
@@ -169,6 +173,7 @@ class ModelTest {
      * Menguji cabang if (prerequisites == null) di addPrerequisite()
      * supaya branch coverage 100%.
      */
+    // menguji cabang kondisi saat prerequisites == null di method addPrerequisite()
     @Test
     @DisplayName("Course: addPrerequisite() menangani prerequisites==null (trigger cabang if)")
     void course_addPrerequisite_handlesNullBranch() {
@@ -181,7 +186,7 @@ class ModelTest {
         assertEquals(1, c.getPrerequisites().size());
         assertEquals("IF000", c.getPrerequisites().get(0));
     }
-
+    // menguji jalur normal addPrerequisite() saat list sudah ada
     @Test
     @DisplayName("Course: addPrerequisite() menambah item saat list sudah ada")
     void course_addPrerequisite_initializesListAndAdds() {
@@ -193,7 +198,7 @@ class ModelTest {
         assertEquals(2, c.getPrerequisites().size());
         assertTrue(c.getPrerequisites().containsAll(Arrays.asList("IF001", "IF002")));
     }
-
+    // memastikan setPrerequisites() dan getPrerequisites() berfungsi simetris
     @Test
     @DisplayName("Course: setPrerequisites() menyetel list; getPrerequisites() mengembalikan referensi yang sama")
     void course_setAndGetPrerequisites_roundTrip() {
